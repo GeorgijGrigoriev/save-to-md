@@ -24,7 +24,12 @@ func Run(listen, savePathFlag string) {
 
 	// Routes
 	e.GET("/", serveUI)
+	e.GET("/files", serveFilesList)
 	e.POST("/save", saveMarkdown)
+	e.GET("/view/:filename", serverViewUI)
+	e.GET("/api/view:filename", viewFile)
+	e.DELETE("/delete/:filename", deleteFile)
+	e.GET("/api/files", listFiles) // API endpoint for file listing
 
 	// Start server
 	log.Printf("Server starting on port %s", listen)

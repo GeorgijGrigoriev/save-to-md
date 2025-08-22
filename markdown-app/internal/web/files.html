@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Saved Markdown Files</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .file-list {
+            margin-top: 20px;
+        }
+        .file-item {
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #f9f9f9;
+            border-radius: 4px;
+            border-left: 4px solid #1890ff;
+        }
+        .file-name {
+            font-weight: bold;
+            color: #1890ff;
+        }
+        .file-actions {
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 8px 12px;
+            margin-right: 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn-view {
+            background-color: #52c41a;
+            color: white;
+        }
+        .btn-delete {
+            background-color: #ff4d4f;
+            color: white;
+        }
+        .btn-back {
+            background-color: #1890ff;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .no-files {
+            text-align: center;
+            color: #999;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Saved Markdown Files</h1>
+        
+        <div id="fileList" class="file-list">
+            <!-- Files will be loaded here via JavaScript -->
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="/" class="btn btn-back">Back to Editor</a>
+        </div>
+    </div>
+    
+    <script>
+        // Fetch and display files
+        async function loadFiles() {
+            try {
+                const response = await fetch('/api/files');
+                const files = await response.json();
+                
+                const fileList = document.getElementById('fileList');
+                
+                if (files.length === 0) {
+                    fileList.innerHTML = '<div class="no-files">No saved markdown files found.</div>';
+                    return;
+                }
+                
+                let html = '';
+                files.forEach(file => {
+                    html += `
+                        <div class="file-item">
+                            <div class="file-name">${file.name}</div>
+                            <div class="file-actions">
+                                <a href="/view/${file.name}" class="btn btn-view" target="_blank">View</a>
+                                <button class="btn btn-delete" onclick="deleteFile('${file.name}')">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+                
+                fileList.innerHTML = html;
+            } catch (error) {
+                console.error('Error loading files:', error);
+                document.getElementById('fileList').innerHTML = '<div class="no-files">Failed to load files.</div>';
+            }
+        }
+        
+        // Delete a file
+        async function deleteFile(filename) {
+            if (!confirm(`Are you sure you want to delete ${filename}?`)) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/delete/${filename}`, { method: 'DELETE' });
+                
+                if (response.ok) {
+                    alert('File deleted successfully');
+                    loadFiles(); // Reload the file list
+                } else {
+                    const error = await response.json();
+                    alert(`Error deleting file: ${error.error}`);
+                }
+            } catch (error) {
+                console.error('Error deleting file:', error);
+                alert('Network error while deleting file');
+            }
+        }
+        
+        // Load files when page loads
+        loadFiles();
+    </script>
+</body>
+</html>

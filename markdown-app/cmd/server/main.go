@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 
-	"github.com/GeorgijGrigoriev/save-to-md/api"
+	"github.com/GeorgijGrigoriev/save-to-md/internal/api"
 )
 
 func main() {
